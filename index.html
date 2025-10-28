@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Bandcamp Across The World</title>
+    <meta property="og:description" content="Show Bandcamp artists and where they are from" />
+    <meta charset='utf-8'>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel='stylesheet' href='https://unpkg.com/maplibre-gl@5.9.0/dist/maplibre-gl.css' />
+    <script src='https://unpkg.com/maplibre-gl@5.9.0/dist/maplibre-gl.js'></script>
+    <style>
+        body { margin: 0; padding: 0; }
+        html, body, #mapDiv { height: 100%; }
+        .overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            opacity: 0.7;
+            z-index: 1;
+            margin: 30px;
+            background-color: #f0ffff;
+            box-shadow: -5px 5px 10px rgba(0, 0, 0, 0.5);
+            font-family:sans-serif;
+        }
+        .overlayText {
+            float: left;
+        }
+        .overlayPic {
+            float: right;
+            margin: auto;
+        }
+    </style>
+</head>
+<body>
+    <div id="mapDiv">
+        <div id="nowPlayingOverlay" class="overlay">
+            <div id="nowPlayingOverlayText" class="overlayText"></div>
+            <div id="nowPlayingOverlayPic" class="overlayPic"></div>
+        </div>
+    </div>
+</body>
+<script>
+    function addOverlay(location, band, songName, bandUrl, songUrl, bandImage) {
+        let nowPlayingOverlayDiv = document.getElementById('nowPlayingOverlay');
+        let nowPlayingOverlayTextDiv = document.getElementById('nowPlayingOverlayText');
+        let nowPlayingOverlayPicDiv = document.getElementById('nowPlayingOverlayPic');
+        nowPlayingOverlayTextDiv.innerHTML = "<b>NOW PLAYING:</b><br/>" + 
+            band + " (" + location + ")<br/>" + 
+            songName + "<br/>" + 
+            "<a target=\"_blank\" href=\"" + bandUrl + "\">" + bandUrl + "</a>";
+        // set these inside function so it doesn't draw before a band is clicked
+        nowPlayingOverlay.style.border = "1px solid black";
+        nowPlayingOverlayTextDiv.style.paddingLeft = "10px";
+        nowPlayingOverlayTextDiv.style.paddingRight = "10px";
+        nowPlayingOverlayTextDiv.style.paddingTop = "10px";
+        nowPlayingOverlayTextDiv.style.paddingBottom = "10px";
+        nowPlayingOverlayTextDiv.style.width  = "fit-content(1500px)";
+        nowPlayingOverlayTextDiv.style.height = "fit-content(150px)";
+        
+        // maintain band image aspect ratio (default to 100px x 100px)
+        var imgW = '100';
+        var imgH = '100';
+        const theImg = new Image();
+        theImg.onload = function() {
+            var maxDim = this.width>this.height ? this.width : this.height;
+            var scaleRatio = 100/maxDim;
+            imgW = this.width * scaleRatio;
+            imgH = this.height * scaleRatio;
+        }
+        theImg.src = bandImage;
+        nowPlayingOverlayPicDiv.innerHTML = "<img src='" + bandImage + "' width='" + imgW + "px' height='" + imgH + "px' opacity='1.0'/>";
+        nowPlayingOverlayPicDiv.style.paddingLeft = "10px";
+        nowPlayingOverlayPicDiv.style.paddingRight = "10px";
+        nowPlayingOverlayPicDiv.style.paddingTop = "10px";
+        nowPlayingOverlayPicDiv.style.paddingBottom = "10px";
+        nowPlayingOverlayPicDiv.style.width  = imgW + 'px';
+        nowPlayingOverlayPicDiv.style.height = imgH + 'px';
+
+        nowPlayingOverlayDiv.style.width  = "fit-content(1600px)";
+        nowPlayingOverlayDiv.style.height = "fit-content(150px)";
+    }
+
+    var datapoints = {};
+    fetch('datapoints.json', {cache: 'no-store'}).
+        then(response => response.json()).
+        then(data => { datapoints = data; });
+
+    const map = new maplibregl.Map({
+        container: 'mapDiv',
+        style: 'https://tiles.openfreemap.org/styles/bright',
+        center: [0, 0],
+        zoom: 1
+    });
+    
+    map.on('load', async () => {
+        // Add an image to use as a custom marker
+        const image = await map.loadImage('reddot.png');
+        map.addImage('custom-marker', image.data);
+        map.addSource('bands', datapoints); 
+
+        // Add a symbol layer
+        map.addLayer({
+            'id': 'bands',
+            'type': 'symbol',
+            'source': 'bands',
+            'layout': { 'icon-image': 'custom-marker' }
+        });
+        const popup = new maplibregl.Popup({
+                    closeButton: false,
+                    closeOnClick: false
+        });
+        let currentFeatureCoordinates = undefined;
+        map.on('mousemove', 'bands', (e) => {
+            const featureCoordinates = e.features[0].geometry.coordinates.toString();
+            if (currentFeatureCoordinates !== featureCoordinates) {
+                currentFeatureCoordinates = featureCoordinates;
+
+                // Change the cursor style as a UI indicator.
+                map.getCanvas().style.cursor = 'pointer';
+
+                const coordinates = e.features[0].geometry.coordinates.slice();
+                const band = e.features[0].properties.band;
+                const locationAndBand = e.features[0].properties.location + " -- " + band;
+
+                // Ensure that if the map is zoomed out such that multiple
+                // copies of the feature are visible, the popup appears
+                // over the copy being pointed to.
+                while (Math.abs(e.lngLat.lng - coordinates[0]) > 180) {
+                    coordinates[0] += e.lngLat.lng > coordinates[0] ? 360 : -360;
+                }
+
+                // Populate the popup and set its coordinates
+                // based on the feature found.
+                popup.setLngLat(coordinates).setHTML(locationAndBand).addTo(map);
+
+            }
+        });
+
+        map.on('mouseleave', 'bands', () => {
+            currentFeatureCoordinates = undefined;
+            map.getCanvas().style.cursor = '';
+            popup.remove();
+        }); 
+        
+        let currentClickCoordinates = undefined;
+        map.on('click', 'bands', (e) => {
+            const clickCoordinates = e.features[0].geometry.coordinates.toString();
+            currentClickCoordinates = clickCoordinates;
+            const coordinates = e.features[0].geometry.coordinates.slice();
+            const band = e.features[0].properties.band;
+            const bandUrl = e.features[0].properties.bandUrl;
+            const bandImage = e.features[0].properties.bandImage;
+            const location = e.features[0].properties.location;
+            // select a representative song from the band. TODO: make this a random song?
+            const songName = e.features[0].properties.sampleTuneName;
+            const songUrl = e.features[0].properties.sampleTuneUrl;
+            addOverlay(location, band, songName, bandUrl, songUrl, bandImage);
+        });
+    });
+</script>
+</body>
+</html>

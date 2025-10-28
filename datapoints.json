@@ -1,0 +1,62 @@
+{
+    "type": "geojson",
+    "data": {
+        "type": "FeatureCollection",
+        "features": [
+            {
+                "type": "Feature",
+                "geometry": {
+                    "type": "Point",
+                    "coordinates": [
+                        -73.9496,
+                        40.6501
+                    ]
+                },
+                "properties": {
+                    "band": "Punch Brothers",
+                    "bandUrl": "https://punchbrothers.bandcamp.com/",
+                    "bandImage": "https://f4.bcbits.com/img/0036681412_10.jpg",
+                    "location": "Brooklyn, New York",
+                    "sampleTuneName": "Cattle in the Cane",
+                    "sampleTuneUrl": "https://punchbrothers.bandcamp.com/track/cattle-in-the-cane"
+                }
+            },
+            {
+                "type": "Feature",
+                "geometry": {
+                    "type": "Point",
+                    "coordinates": [
+                        -0.118092,
+                        51.509865
+                    ]
+                },
+                "properties": {
+                    "band": "Black Country, New Road",
+                    "bandUrl": "https://blackcountrynewroad.bandcamp.com/",
+                    "bandImage": "https://f4.bcbits.com/img/0038402634_10.jpg",
+                    "location": "London, UK",
+                    "sampleTuneName": "Athens, France",
+                    "sampleTuneUrl": "https://blackcountrynewroad.bandcamp.com/track/athens-france"
+                }
+            },
+            {
+                "type": "Feature",
+                "geometry": {
+                    "type": "Point",
+                    "coordinates": [
+                        126.9784,
+                        37.566
+                    ]
+                },
+                "properties": {
+                    "band": "ADG7",
+                    "bandUrl": "https://adg7.bandcamp.com/",
+                    "bandImage": "https://f4.bcbits.com/img/0039202055_10.jpg",
+                    "location": "Seoul, South Korea",
+                    "sampleTuneName": "Hello, Lonely",
+                    "sampleTuneUrl": "https://adg7.bandcamp.com/track/hello-lonely"
+                }
+            }
+        ]
+    }
+}
