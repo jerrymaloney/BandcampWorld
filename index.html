@@ -43,10 +43,15 @@
         let nowPlayingOverlayDiv = document.getElementById('nowPlayingOverlay');
         let nowPlayingOverlayTextDiv = document.getElementById('nowPlayingOverlayText');
         let nowPlayingOverlayPicDiv = document.getElementById('nowPlayingOverlayPic');
-        nowPlayingOverlayTextDiv.innerHTML = "<b>NOW PLAYING:</b><br/>" + 
-            band + " (" + location + ")<br/>" + 
+        let bandAndLocationString = band + " (" + location + ")";
+        let bandUrlString = "<a target=\"_blank\" href=\"" + bandUrl + "\">" + bandUrl + "</a>";
+        let audioString = "<audio id=\"sampleSongAudio\" src=\"" + songUrl + "\" loop/>";
+        let innerHtmlString = "<b>NOW PLAYING:</b><br/>" + 
+            bandAndLocationString + "<br/>" + 
             songName + "<br/>" + 
-            "<a target=\"_blank\" href=\"" + bandUrl + "\">" + bandUrl + "</a>";
+            bandUrlString + 
+            audioString;
+        nowPlayingOverlayTextDiv.innerHTML = innerHtmlString;
         // set these inside function so it doesn't draw before a band is clicked
         nowPlayingOverlay.style.border = "1px solid black";
         nowPlayingOverlayTextDiv.style.paddingLeft = "10px";
@@ -82,6 +87,9 @@
         
         nowPlayingOverlayDiv.style.width  = "fit-content(1600px)";
         nowPlayingOverlayDiv.style.height = "fit-content(150px)";
+        
+        const music = document.getElementById('sampleSongAudio');
+        music.play();
     }
 
     var datapoints = {};
