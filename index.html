@@ -56,27 +56,30 @@
         nowPlayingOverlayTextDiv.style.width  = "fit-content(1500px)";
         nowPlayingOverlayTextDiv.style.height = "fit-content(150px)";
         
-        // maintain band image aspect ratio
+        // maintain band image aspect ratio (default to 100x100 pixels)
+        const textDivStyle = window.getComputedStyle(nowPlayingOverlayTextDiv);
+        const textDivHeight = parseInt(textDivStyle.getPropertyValue('height'));
+        var scaleRatio = 1;
+        var imgWidth = 100;
+        var imgHeight = 100;
         const theImg = new Image();
         theImg.onload = function() {
-            const textDivStyle = window.getComputedStyle(nowPlayingOverlayTextDiv);
-            const textDivHeight = parseInt(textDivStyle.getPropertyValue('height'));
-            const scaleRatio = textDivHeight / this.height;
-            const imgWidth = this.width * scaleRatio;
-            const imgHeight = this.height * scaleRatio;
-            nowPlayingOverlayPicDiv.innerHTML = "<img src='" + bandImage + "' width='" + imgWidth + "px' height='" + imgHeight + 
-                    "px' opacity='1.0'/>";
-            nowPlayingOverlayPicDiv.style.width  = imgWidth + 'px';
-            nowPlayingOverlayPicDiv.style.height = imgHeight + 'px';
+            scaleRatio = textDivHeight / this.height;
+            imgWidth = this.width * scaleRatio;
+            imgHeight = this.height * scaleRatio;
         }
         theImg.src = bandImage;
+        nowPlayingOverlayPicDiv.innerHTML = "<img src='" + bandImage + "' width='" + imgWidth + "px' height='" + imgHeight + 
+                "px' opacity='1.0'/>";
+        nowPlayingOverlayPicDiv.style.width  = imgWidth + 'px';
+        nowPlayingOverlayPicDiv.style.height = imgHeight + 'px';
         nowPlayingOverlayPicDiv.style.paddingLeft = "10px";
         nowPlayingOverlayPicDiv.style.paddingRight = "10px";
         nowPlayingOverlayPicDiv.style.paddingTop = "10px";
         nowPlayingOverlayPicDiv.style.paddingBottom = "10px";
-        nowPlayingOverlayPicDiv.style.width  = imgW + 'px';
-        nowPlayingOverlayPicDiv.style.height = imgH + 'px';
-
+        nowPlayingOverlayPicDiv.style.width  = imgWidth + 'px';
+        nowPlayingOverlayPicDiv.style.height = imgHeight + 'px';
+        
         nowPlayingOverlayDiv.style.width  = "fit-content(1600px)";
         nowPlayingOverlayDiv.style.height = "fit-content(150px)";
     }
