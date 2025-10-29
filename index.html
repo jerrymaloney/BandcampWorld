@@ -56,18 +56,20 @@
         nowPlayingOverlayTextDiv.style.width  = "fit-content(1500px)";
         nowPlayingOverlayTextDiv.style.height = "fit-content(150px)";
         
-        // maintain band image aspect ratio (default to 100px x 100px)
-        var imgW = '100';
-        var imgH = '100';
+        // maintain band image aspect ratio
         const theImg = new Image();
         theImg.onload = function() {
-            var maxDim = this.width>this.height ? this.width : this.height;
-            var scaleRatio = 100/maxDim;
-            imgW = this.width * scaleRatio;
-            imgH = this.height * scaleRatio;
+            const textDivStyle = window.getComputedStyle(nowPlayingOverlayTextDiv);
+            const textDivHeight = parseInt(textDivStyle.getPropertyValue('height'));
+            const scaleRatio = textDivHeight / this.height;
+            const imgWidth = this.width * scaleRatio;
+            const imgHeight = this.height * scaleRatio;
+            nowPlayingOverlayPicDiv.innerHTML = "<img src='" + bandImage + "' width='" + imgWidth + "px' height='" + imgHeight + 
+                    "px' opacity='1.0'/>";
+            nowPlayingOverlayPicDiv.style.width  = imgWidth + 'px';
+            nowPlayingOverlayPicDiv.style.height = imgHeight + 'px';
         }
         theImg.src = bandImage;
-        nowPlayingOverlayPicDiv.innerHTML = "<img src='" + bandImage + "' width='" + imgW + "px' height='" + imgH + "px' opacity='1.0'/>";
         nowPlayingOverlayPicDiv.style.paddingLeft = "10px";
         nowPlayingOverlayPicDiv.style.paddingRight = "10px";
         nowPlayingOverlayPicDiv.style.paddingTop = "10px";
